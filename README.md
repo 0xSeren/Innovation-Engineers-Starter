@@ -25,7 +25,7 @@ hardest ones live one level up in `~/projects/code/` (`LineFollower`, `Bug1`,
 
 | # | Exercise | Lab / Day | Key idea | New hardware |
 |---|----------|-----------|----------|--------------|
-| 0 | TeleOp: Drive It Yourself | 0 Warm-up | read input → act; TeleOp vs Auton | motors |
+| 0 | TeleOp: Drive It Yourself | 0 Warm-up | read input → act; TeleOp vs Auton | IR remote |
 | 1 | Motor Basics | 1 Foundations | H-bridge, PWM = speed | — |
 | 2 | Drive a Square (open-loop) | 1 | dead-reckoning + its error | — |
 | 3 | Line Following (basic) | 1 | first closed-loop behavior | line sensors |
@@ -64,7 +64,8 @@ Board = **Arduino UNO**, Port = `/dev/ttyUSB0`. From the IDE, or:
 arduino-cli upload -p /dev/ttyUSB0 --fqbn arduino:avr:uno <exercise-folder>
 ```
 Open the **Serial Monitor / Serial Plotter** at 9600 baud — many exercises
-print data meant to be watched there (and Exercise 0 is driven from it).
+print data meant to be watched there. (Exercise 0 is driven by the kit's IR
+remote, not the keyboard.)
 
 ## Engineering Design Process
 The camp's through-line, used at every step: **Imagine → Build → Test →

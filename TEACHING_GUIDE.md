@@ -23,8 +23,8 @@ goals. Day 0 folds into the start of Day 1 if you're short on time.
 **Golden rules**
 - Every sketch already compiles — *upload before writing any code* so students
   learn the upload loop on an empty exercise, not while debugging their logic.
-- Serial Monitor / **Serial Plotter** at 9600 is your best teaching aid (Ex 0,
-  5, 9, 10, 11, 12 are built to be watched/driven there).
+- Serial Monitor / **Serial Plotter** at 9600 is your best teaching aid (Ex 5,
+  9, 10, 11, 12 are built to be watched there; Ex 0 is driven by the IR remote).
 - Put cars on **books/blocks (wheels off the table)** while testing motor logic
   so they don't drive off the bench.
 - One variable at a time. "Change `Kp`, retest" beats "change five constants."
@@ -36,7 +36,8 @@ goals. Day 0 folds into the start of Day 1 if you're short on time.
       this machine.)
 - [ ] One car per team, charged 18650s; spare batteries on a charger.
 - [ ] Board = **Arduino UNO**, Port = `/dev/ttyUSB0`. Confirm one upload works.
-- [ ] A USB cable long enough to drive the rover in Exercise 0 (or a tabletop).
+- [ ] The kit's IR remote (with a fresh coin-cell) for Exercise 0; check the
+      pin-9 receiver responds.
 - [ ] Day 1+: tape a line + (later) a maze on the floor; cones / pool noodles
       for the Mars course; rulers + stopwatches/phones for calibration.
 - [ ] Print the Exercise 5 data table and the Day-2 reflection prompts.
@@ -50,11 +51,15 @@ goals. Day 0 folds into the start of Day 1 if you're short on time.
   → act**. Frame it with the camp's FTC/FRC connection: matches have a
   driver-controlled **TeleOp** period and a self-driving **Autonomous** period.
   "Today you ARE the autonomy; the rest of the course replaces you."
-- **Hook:** let them drive immediately — `setMotors` is provided, so the only
-  TODO is the key→motion parser. Races/obstacle slaloms make a fun first hour.
-- **Pitfalls:** Serial Monitor line-ending set to something other than "No line
-  ending" sends extra characters; a typed key latches until the next one (good
-  lead-in to the dead-man-timeout stretch).
+- **Hook:** let them drive immediately with the kit's **IR remote** —
+  `setMotors` and the IR decode are provided, so the only TODO is the
+  button→motion mapping. Hold-to-drive (release = stop) is built in. Races /
+  obstacle slaloms make a fun first hour.
+- **Pitfalls:** the kit ships one of two remote versions — if buttons do
+  nothing, uncomment the `Serial.println(code, HEX)` to read the actual codes
+  and update the `#defines` (the sketch already accepts both known sets). IR is
+  line-of-sight: aim at the receiver dome on pin 9; bright sunlight/fluorescents
+  can swamp it.
 - **Checkpoint:** every team can drive forward/back and spin both ways on
   command; can explain TeleOp vs Autonomous.
 
@@ -264,7 +269,7 @@ next improvement. Strong evidence:
 | Ultrasonic always 400 | TRIG/ECHO swapped, or no echo (too far/soft) |
 | "MPU6050 NOT found" | I2C wiring, or a non-MPU6050 board revision |
 | Junctions misread | recalibrate `CM_PER_MS`; tracking too fast/loose |
-| TeleOp keys do nothing | Serial line-ending ≠ "No line ending", wrong baud |
+| TeleOp remote does nothing | wrong remote code set (print codes & update `#defines`); aim at the pin-9 receiver; weak IR in bright light |
 | Behavior changed for no reason | **battery voltage dropped** — recharge, recalibrate |
 
 ## Pacing
