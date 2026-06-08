@@ -10,16 +10,17 @@ then follow the **Bull City Robotics "Mars Rover Systems Engineering Lab"**
 extend it into the engineering that makes autonomy actually work: calibration,
 gyros, filtering, sensor fusion, and maze-solving algorithms.
 
-> **Instructors:** see `TEACHING_GUIDE.md` for schedule, talking points, demos,
-> common failure modes, solution hints, and checkpoints.
+> **Instructors:** the `instructor` branch holds the `TEACHING_GUIDE.md`
+> (schedule, talking points, demos, failure modes, checkpoints) and worked
+> `solutions/` for every exercise — kept off `main` so students get a clean
+> starter. Switch with `git checkout instructor`.
 
 ## How the exercises work
 Each `ExNN_*/ExNN_*.ino` is a **starter sketch that already compiles**. The
 boilerplate (pins, motor helpers) is provided; the learning happens in the
 numbered **`TODO` blocks**, which spell out exactly what each function must do.
-Students fill those in, upload, and test. Full reference solutions for the
-hardest ones live one level up in `~/projects/code/` (`LineFollower`, `Bug1`,
-`Bug2`, `MazeSolverLSRB`, `MazeSolverTremaux`).
+Students fill those in, upload, and test. Worked solutions for every exercise
+live on the `instructor` branch (`git checkout instructor`).
 
 ## Course map
 
