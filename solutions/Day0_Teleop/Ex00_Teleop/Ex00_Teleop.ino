@@ -3,7 +3,7 @@
  *  Drive with the kit's IR remote; hold a button to move, release to stop.
  *  Accepts both shipped remote code sets. See the starter for the full writeup.
  */
-#include <IRremote.h>          // ELEGOO's bundled IRremote 2.x
+#include "IRremote.h"          // bundled in this folder (ELEGOO's IRremote 2.x)
 
 #define PIN_PWMA 5
 #define PIN_PWMB 6
