@@ -28,7 +28,7 @@
  *  then drop them into the #defines.
  * ======================================================================
  */
-#include <IRremote.h>          // ELEGOO's bundled IRremote 2.x
+#include "IRremote.h"          // bundled in this folder (ELEGOO's IRremote 2.x)
 
 #define PIN_PWMA 5
 #define PIN_PWMB 6
