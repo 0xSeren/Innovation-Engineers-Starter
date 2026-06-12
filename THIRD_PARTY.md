@@ -1,7 +1,7 @@
 # Third-party code
 
-Some exercises (the gyro labs in Day 4 and the Trémaux maze solver in Day 5)
-include IMU driver files so the starter sketches compile self-contained:
+Some exercises (the gyro labs in Day 4, and the LSRB and Trémaux maze solvers in
+Day 5) include IMU driver files so the starter sketches compile self-contained:
 
 - `MPU6050.cpp/.h`, `I2Cdev.cpp/.h` — from **I2Cdevlib** by Jeff Rowberg
   (<https://github.com/jrowberg/i2cdevlib>), MIT License.
