@@ -219,31 +219,37 @@ motors, meet dead-reckoning, and get the rover following a line by itself.*
 - **Checkpoint:** correctly names L / S / R / dead-end / cross / GOAL.
 
 ### Exercise 15 — Maze Solving: Left-Hand Rule (LSRB)
-- **Maze build (electrical tape):** this one is a **tape-WALL** maze, not a line
-  maze. Lay black electrical-tape strips as the **walls** of a grid of square
-  cells on a light floor; the rover drives the open lanes. Use **~30 cm cells**
-  so the rover can pivot in place inside one without crossing a wall. Mark the
-  **finish** with a solid tape **pad** that fills a cell (all three sensors on
-  tape at once = goal). Start the rover centered in a cell, facing into the maze.
-  A 3×3 or 4×4 maze is plenty for a demo.
-- **Concept:** at every cell pick Left>Straight>Right>Back; record turns; collapse
+- **Maze build (electrical tape):** a **tape-WALL** maze, not a line maze. Lay
+  black electrical-tape strips as **walls laid ACROSS the corridors** on a light
+  floor; the rover drives the lanes between them. Corridors should be wide enough
+  for the body (**~18–20 cm**) and end in walls / turns / T-junctions. Mark the
+  **finish** with a solid tape **pad** the rover drives onto (tape stays under all
+  three sensors, unlike a thin wall line). Aim the rover down the first corridor
+  to start. A small maze of turns and dead-ends is plenty for a demo.
+- **How it drives (no line-following, no cells):** drive **straight until all
+  three sensors hit tape** = a wall ahead — sensor-driven, *any* distance, no
+  blind fixed advance. Then **decide**.
+- **Concept:** at each wall pick the leftmost open way; record turns; collapse
   each dead-end `B` via the rotation table. The simplified list is the shortest
-  path. Loop-free mazes only. The LSRB *algorithm* is identical to a line maze —
-  only the sensing changed.
-- **Why it "looks around":** the 3 sensors point straight down at the front, so
-  the rover can't see a side wall while driving. At each cell it pivots (the
-  closed-loop **gyro** turn from Ex 13) to face left / ahead / right and creeps
-  forward to feel for a tape wall in each direction → fills `gLeft/gStraight/
-  gRight`. This makes Ex 13 (turn-by-angle) and Ex 11 (gyro bias) pay off again.
+  path. Loop-free mazes only. Key subtlety to draw out: the rover **only stops
+  when straight is blocked**, so `gStraight` is always false here and the priority
+  collapses to **Left > Right > Back** — open straights are simply driven through
+  (it can't see a side turn it isn't facing). `pickLSRB` is still written the full
+  L>S>R>B way so the algorithm matches a line maze.
+- **Why it pivots to "glance":** the 3 sensors point straight down at the front,
+  so a side opening is invisible while driving. At a wall it pivots (the
+  closed-loop **gyro** turn from Ex 13) to glance left, then right, creeping a
+  little (`creepClear`) to feel open-vs-walled → fills `gLeft/gRight`. This makes
+  Ex 13 (turn-by-angle) and Ex 11 (gyro bias) pay off again.
 - **Two TODOs:** `pickLSRB`, `simplifyPath` (same as before — the lesson is the
   algorithm, not the plumbing).
 - **Pitfalls:** simplify firing when `path[len-2]!='B'`; off-by-one in the
   3-turn collapse. **Hardware pitfalls (provided layer):** turns must be square —
-  hold still during the power-up gyro bias calibration; tune `CM_PER_MS` so a
-  one-cell advance lands centered; set `WALL_PROBE_CM` a bit past the boundary;
-  fix `TAPE_THRESHOLD`/`TAPE_READS_HIGH` from Ex 8 so tape reads "on". Drift
-  accumulates over many cells — keep the maze small, or (stretch) square up the
-  heading against a wall when one is detected.
+  hold still during the power-up gyro bias calibration; fix `TAPE_THRESHOLD`/
+  `TAPE_READS_HIGH` from Ex 8 so tape reads "on"; set `PROBE_CM` long enough to
+  see into a passage but shorter than a corridor. On long straights the rover can
+  veer (it's driving open-loop straight) and clip a side wall before reaching the
+  end wall — the easy fix is gyro heading-hold during `driveToWall()`.
 - **Checkpoint:** solves a simple tape-wall maze; printed path gets *shorter* as
   dead ends are eliminated.
 - **Reference solution:** `~/projects/code/MazeSolverLSRB/` (full two-pass:

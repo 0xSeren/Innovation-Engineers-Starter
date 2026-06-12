@@ -2,10 +2,11 @@
  * ======================================================================
  *  EXERCISE 15 -- Maze Solving: Left-Hand Rule (LSRB)   *** SOLUTION ***
  * ======================================================================
- *  Tape-WALL maze: walls are black electrical-tape strips on a light floor;
- *  the rover drives the lanes between them on a grid of cells. The 3 sensors
- *  point down, so at each cell the rover pivots (gyro turn) to LOOK left /
- *  ahead / right and probes for a tape wall. Goal = a solid tape pad.
+ *  Tape-WALL maze: walls are tape strips ACROSS the corridors on a light
+ *  floor. The rover drives STRAIGHT until all three sensors hit tape (a wall
+ *  ahead), then pivots (gyro turn) to glance left/right and turns. It only
+ *  stops when straight is blocked, so the choice is Left > Right > Back.
+ *  Goal = a solid tape pad.
  *
  *  Both TODOs are filled in below: pickLSRB() and simplifyPath(). The full
  *  two-pass reference (explore + replay, button start) is in
@@ -27,11 +28,11 @@
 
 #define TAPE_THRESHOLD 500
 #define TAPE_READS_HIGH 1
-#define CELL_CM       30.0
-#define WALL_PROBE_CM 12.0
-#define CM_PER_MS     0.020
-#define CREEP   90
+#define CM_PER_MS  0.020
+#define PROBE_CM   12.0
+#define NUDGE_CM   3.0
 #define DRIVE   110
+#define CREEP   90
 #define TURN_SPEED 100
 #define MAX_PATH 60
 
@@ -46,6 +47,7 @@ void stopMotors(){analogWrite(PIN_PWMA,0);analogWrite(PIN_PWMB,0);digitalWrite(P
 bool L(){bool h=analogRead(PIN_L)>TAPE_THRESHOLD;return TAPE_READS_HIGH?h:!h;}
 bool M(){bool h=analogRead(PIN_M)>TAPE_THRESHOLD;return TAPE_READS_HIGH?h:!h;}
 bool R(){bool h=analogRead(PIN_R)>TAPE_THRESHOLD;return TAPE_READS_HIGH?h:!h;}
+bool wall(){ return L() && M() && R(); }
 
 float readRateDps(){return imu.getRotationZ()/131.0 - biasDps;}
 void calibrateBias(){long s=0;const int N=500;for(int i=0;i<N;i++){s+=imu.getRotationZ();delay(2);}
@@ -62,29 +64,29 @@ void turnDeg(float deg){
   stopMotors();
 }
 
-void driveCm(float cm,bool fwd){unsigned long ms=(unsigned long)(cm/CM_PER_MS),t0=millis();
-  while(millis()-t0<ms)setMotors(fwd,DRIVE,fwd,DRIVE);stopMotors();}
+void driveToWall(){ while(!wall()) setMotors(true,DRIVE,true,DRIVE); stopMotors(); }
 
-bool wallAhead(){
-  unsigned long limit=(unsigned long)(WALL_PROBE_CM/CM_PER_MS),t0=millis(); bool seen=false;
-  while(millis()-t0<limit){setMotors(true,CREEP,true,CREEP); if(M()){seen=true;break;}}
+bool creepClear(float cm){
+  unsigned long limit=(unsigned long)(cm/CM_PER_MS),t0=millis(); bool blocked=false;
+  while(millis()-t0<limit){ setMotors(true,CREEP,true,CREEP); if(wall()){blocked=true;break;} }
   unsigned long fwd=millis()-t0; stopMotors();
-  unsigned long t1=millis(); while(millis()-t1<fwd)setMotors(false,CREEP,false,CREEP);
-  stopMotors(); return seen;
+  unsigned long t1=millis(); while(millis()-t1<fwd) setMotors(false,CREEP,false,CREEP);
+  stopMotors(); return !blocked;
 }
 
 bool gLeft,gRight,gStraight,gGoal;
-void senseCell(){
-  gGoal = (L()&&M()&&R());
-  turnDeg(-90); gLeft     = !wallAhead(); turnDeg(90);
-  gStraight = !wallAhead();
-  turnDeg(90);  gRight    = !wallAhead(); turnDeg(-90);
+void senseWall(){
+  gStraight=false;
+  gGoal = !creepClear(NUDGE_CM);
+  if(gGoal) return;
+  turnDeg(-90); gLeft  = creepClear(PROBE_CM); turnDeg(90);
+  turnDeg(90);  gRight = creepClear(PROBE_CM); turnDeg(-90);
 }
 
 // ======================  SOLUTION  ========================================
 char pickLSRB() {
   if (gLeft)     return 'L';        // left-hand rule: leftmost open wins
-  if (gStraight) return 'S';
+  if (gStraight) return 'S';        // never true here (we stop only when straight is walled)
   if (gRight)    return 'R';
   return 'B';                       // walls all around = dead end, U-turn
 }
@@ -109,9 +111,8 @@ void simplifyPath() {
 }
 // ==========================================================================
 
-void executeMove(char t){
+void executeTurn(char t){
   switch(t){case 'L':turnDeg(-90);break;case 'R':turnDeg(90);break;case 'B':turnDeg(180);break;}
-  driveCm(CELL_CM,true);
 }
 
 bool solved=false;
@@ -119,18 +120,19 @@ void setup(){
   pinMode(PIN_PWMA,OUTPUT);pinMode(PIN_PWMB,OUTPUT);pinMode(PIN_AIN1,OUTPUT);
   pinMode(PIN_BIN1,OUTPUT);pinMode(PIN_STBY,OUTPUT);stopMotors();
   Wire.begin(); Serial.begin(9600); imu.initialize();
-  Serial.println(F("Place me in the START cell and HOLD STILL -- calibrating gyro..."));
+  Serial.println(F("Aim me down the first corridor and HOLD STILL -- calibrating gyro..."));
   calibrateBias(); delay(500);
   Serial.println(F("Go!"));
 }
 
 void loop(){
   if(solved){stopMotors();return;}
-  senseCell();
+  driveToWall();
+  senseWall();
   if(gGoal){stopMotors();path[pathLen]='\0';
     Serial.print(F("GOAL! path=")); Serial.println(path); solved=true; return;}
   char t=pickLSRB();
   if(pathLen<MAX_PATH) path[pathLen++]=t;
   simplifyPath();
-  executeMove(t);
+  executeTurn(t);
 }
