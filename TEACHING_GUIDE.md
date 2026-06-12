@@ -219,15 +219,35 @@ motors, meet dead-reckoning, and get the rover following a line by itself.*
 - **Checkpoint:** correctly names L / S / R / dead-end / cross / GOAL.
 
 ### Exercise 15 — Maze Solving: Left-Hand Rule (LSRB)
-- **Concept:** at every junction pick Left>Straight>Right>Back; record turns;
-  collapse each dead-end `B` via the rotation table. Second pass = shortest
-  path. Loop-free mazes only. Builds on Ex 4 (follow) + Ex 14 (junctions).
-- **Two TODOs:** `pickLSRB`, `simplifyPath`.
+- **Maze build (electrical tape):** this one is a **tape-WALL** maze, not a line
+  maze. Lay black electrical-tape strips as the **walls** of a grid of square
+  cells on a light floor; the rover drives the open lanes. Use **~30 cm cells**
+  so the rover can pivot in place inside one without crossing a wall. Mark the
+  **finish** with a solid tape **pad** that fills a cell (all three sensors on
+  tape at once = goal). Start the rover centered in a cell, facing into the maze.
+  A 3×3 or 4×4 maze is plenty for a demo.
+- **Concept:** at every cell pick Left>Straight>Right>Back; record turns; collapse
+  each dead-end `B` via the rotation table. The simplified list is the shortest
+  path. Loop-free mazes only. The LSRB *algorithm* is identical to a line maze —
+  only the sensing changed.
+- **Why it "looks around":** the 3 sensors point straight down at the front, so
+  the rover can't see a side wall while driving. At each cell it pivots (the
+  closed-loop **gyro** turn from Ex 13) to face left / ahead / right and creeps
+  forward to feel for a tape wall in each direction → fills `gLeft/gStraight/
+  gRight`. This makes Ex 13 (turn-by-angle) and Ex 11 (gyro bias) pay off again.
+- **Two TODOs:** `pickLSRB`, `simplifyPath` (same as before — the lesson is the
+  algorithm, not the plumbing).
 - **Pitfalls:** simplify firing when `path[len-2]!='B'`; off-by-one in the
-  3-turn collapse.
-- **Checkpoint:** solves a simple taped maze; printed path gets *shorter* as
+  3-turn collapse. **Hardware pitfalls (provided layer):** turns must be square —
+  hold still during the power-up gyro bias calibration; tune `CM_PER_MS` so a
+  one-cell advance lands centered; set `WALL_PROBE_CM` a bit past the boundary;
+  fix `TAPE_THRESHOLD`/`TAPE_READS_HIGH` from Ex 8 so tape reads "on". Drift
+  accumulates over many cells — keep the maze small, or (stretch) square up the
+  heading against a wall when one is detected.
+- **Checkpoint:** solves a simple tape-wall maze; printed path gets *shorter* as
   dead ends are eliminated.
-- **Reference solution:** `~/projects/code/MazeSolverLSRB/`.
+- **Reference solution:** `~/projects/code/MazeSolverLSRB/` (full two-pass:
+  explore then replay, with button start).
 
 ### Exercise 16 — Maze Solving: Trémaux
 - **Concept:** mark passages; never take a 2-mark passage; use marks to escape

@@ -40,7 +40,7 @@ hardest ones live one level up in `~/projects/code/` (`LineFollower`, `Bug1`,
 | 12 | Complementary Filter (fusion) | 4 | gyro+accel fusion | accel |
 | 13 | Closed-Loop Turn-by-Angle | 4 | closed vs open loop | — |
 | 14 | Junction Detection | 5 Navigation | 3-sensor capture+nudge | — |
-| 15 | Maze Solving — Left-Hand (LSRB) | 5 | turn priority + simplify | — |
+| 15 | Maze Solving — Left-Hand (LSRB) | 5 | tape-wall maze: look-around + simplify | (uses IMU) |
 | 16 | Maze Solving — Trémaux | 5 | marking, loops, odometry | — |
 | 17 | Capstone: Mars Exploration Course | 5 | integrate everything | — |
 
@@ -55,8 +55,22 @@ These appear as `#define`s at the top of the sketches that use them:
   Measure with a ruler + stopwatch (Exercise 2 teaches this).
 - `LINE_THRESHOLD` / `LINE_IS_HIGH` — line-sensor cutoff and polarity
   (Exercise 8 replaces the guess with real per-sensor calibration).
+- `TAPE_THRESHOLD` / `TAPE_READS_HIGH` — same idea for the Exercise 15 tape-wall
+  maze (black tape on a light floor → tape reads "on"; flip if your contrast
+  is reversed).
 - `GYRO_SIGN` — flip `+1`↔`-1` if turns/heading go the wrong way.
-- `CELL_CM` — maze grid pitch, for the Trémaux solver.
+- `CELL_CM` — maze grid pitch (cell-center spacing), for the Exercise 15 tape-wall
+  maze and the Trémaux solver. `WALL_PROBE_CM` — how far Exercise 15 creeps to
+  feel for a boundary wall.
+
+## Two kinds of maze (Day 5)
+- **Exercises 14 & 16** use a **line maze**: the rover FOLLOWS tape lines and
+  reads where they branch.
+- **Exercise 15 (LSRB)** uses a **tape-wall maze**: tape strips are WALLS on a
+  grid of cells and the rover drives the open lanes, pivoting to "look" left /
+  ahead / right at each cell (it can't see sideways while driving). Build it with
+  ~30 cm cells so the rover can pivot in place inside one, and mark the finish
+  with a solid tape pad.
 
 ## Uploading
 Board = **Arduino UNO**, Port = `/dev/ttyUSB0`. From the IDE, or:
